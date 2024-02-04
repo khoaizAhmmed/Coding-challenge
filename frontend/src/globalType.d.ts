@@ -13,4 +13,5 @@ export type ErrorMessageType = {
 
 export interface SectorResponseType extends FormDataType {
   id: number
+  parentId: number
 }

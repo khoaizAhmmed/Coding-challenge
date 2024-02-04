@@ -13,6 +13,26 @@ type FormType = {
 export default function Form({ formData, sectors, setFormData, setMembers }: FormType) {
   const [errorMsg, setErrorMsg] = useState<Partial<ErrorMessageType>>({})
 
+  // const tree = {}
+  // const groupSectors = sectors.forEach((sector, i) => {
+  //   const sectorCategory = new Map()
+
+  //   if (sector.parentId === null) {
+  //     sectorCategory.set(sector.id, sector.name)
+  //     // console
+  //     if (!tree[sector.name]) {
+  //       tree[sector.name] = []
+  //     }
+  //   } else {
+  //     const sectorGrpName = sectorCategory.get(sector.parentId)
+  //     if (tree[sectorGrpName]) {
+  //       tree[sectorGrpName].push(sector)
+  //     }
+  //   }
+  // })
+
+  // console.log({ tree, sectors })
+
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
     let response: FormDataType
@@ -82,21 +102,6 @@ export default function Form({ formData, sectors, setFormData, setMembers }: For
     setFormData((prev) => ({ ...prev, sectorIds: values.toString() }))
   }
 
-  const data = sectors.map((sector) => ({ id: sector.id, name: sector.name, parenId: sector.parentId }))
-  function organizeDataIntoHierarchy(data, parentId = null) {
-    const children = data
-        .filter(item => item.parentId === parentId)
-        .map(item => ({
-            ...item,
-            children: organizeDataIntoHierarchy(data, item.id)
-        }));
-
-    return children.length > 0 ? children : null;
-}
-
-console.log(organizeDataIntoHierarchy(data));
-
-
   return (
     <section className="max-w-4xl p-6 m-10 mx-auto bg-white rounded-md shadow-md dark:bg-gray-800">
       <h2 className="text-lg font-semibold text-gray-700 capitalize dark:text-white">
@@ -126,17 +131,28 @@ console.log(organizeDataIntoHierarchy(data));
               Sectors
             </label>
             <select
-              multiple
-              size={5}
+              // multiple
+              // size={5}
               value={formData.sectorIds.split(',')}
               onChange={handleSectors}
               className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring"
               name="sectors"
               id="sectors"
             >
-              {/* {categoryOptions.length &&
-                categoryOptions.map((sector: SectorResponseType) => (
+              {sectors.length &&
+                sectors.map((sector: SectorResponseType) => (
                   <option key={sector.id} value={sector.id}>
+                    {sector.name}
+                  </option>
+                ))}
+              {/* {sectors.length &&
+                sectors.map((sector: SectorResponseType) => (
+                  <option key={sector.id} value={sector.id}>
+                    {Array(sector.parentId * 3)
+                      .fill(null)
+                      .map((space) => (
+                        <>&nbsp;</>
+                      ))}
                     {sector.name}
                   </option>
                 ))} */}

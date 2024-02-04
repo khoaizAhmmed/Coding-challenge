@@ -1,7 +1,14 @@
-import { SectorResponseType } from '../globalType'
+import { FormDataType, SectorResponseType } from '../globalType'
 
-export default function Table({ members, sectors, handleEdit, handleDelete }) {
-  const membersData = members.map((member: any) => {
+type TableType = {
+  members: FormDataType[]
+  sectors: SectorResponseType[]
+  handleEdit: (memberId: number) => void
+  handleDelete: (memberId: number) => void
+}
+
+export default function Table({ members, sectors, handleEdit, handleDelete }: TableType) {
+  const membersData = members.map((member: FormDataType) => {
     const { id, name, sectorIds, isAgree } = member
 
     const sectorsName = sectors
