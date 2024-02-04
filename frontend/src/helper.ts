@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { FormDataType } from './globalType'
+import { FormDataType, SectorResponseType } from './globalType'
 
 const baseURL = import.meta.env.VITE_BASE_URL
 
@@ -35,8 +35,6 @@ export const getMembers = async () => {
 }
 
 export const deleteMember = async (id: number) => {
-  console.log({ id })
-
   const res = await axios.post(
     `${baseURL}/member/delete`,
     { id },
@@ -47,5 +45,46 @@ export const deleteMember = async (id: number) => {
     },
   )
   const result = await res.data
+  return result
+}
+
+export function groupByParentIdAndAddDepth(data: SectorResponseType[]) {
+  const groupedData: { [key: number]: SectorResponseType[] } = {}
+
+  // Group by parentId
+  data.forEach((item) => {
+    let parentId = item.parentId
+    if (parentId === null) {
+      parentId = 0
+    }
+    if (!groupedData[parentId]) {
+      groupedData[parentId] = []
+    }
+    groupedData[parentId].push(item)
+  })
+
+  // Add depth to each item
+  const addDepth = (items: SectorResponseType[], depth: number) => {
+    items.forEach((item) => {
+      item.depth = depth
+      const children = groupedData[item.id]
+      if (children) {
+        addDepth(children, depth + 1)
+      }
+    })
+  }
+
+  // Start with items having no parentId (top-level items)
+  const topLevelItems = groupedData[0] || []
+  addDepth(topLevelItems, 0)
+
+  // Flatten the result
+  const flatten = (items: SectorResponseType[]): SectorResponseType[] => {
+    return items.flatMap((item) => {
+      const children = groupedData[item.id] || []
+      return [item, ...flatten(children)]
+    })
+  }
+  const result = flatten(topLevelItems)
   return result
 }

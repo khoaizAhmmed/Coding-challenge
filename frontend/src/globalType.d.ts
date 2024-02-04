@@ -1,8 +1,10 @@
 export type FormDataType = {
-  id?: number
+  id: number
   name: string
   sectorIds: string
   isAgree: boolean
+  parentId?: number
+  depth?: number
 }
 
 export type ErrorMessageType = {
