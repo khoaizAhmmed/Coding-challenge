@@ -22,7 +22,7 @@ function App() {
     if (isOk) {
       const deletedId = await deleteMember(memberId)
       if (deletedId) {
-        const updateMember = members.filter((member) => member.id !== deletedId)
+        const updateMember = members.filter((member) => Number(member.id) !== deletedId)
         setMembers(updateMember)
       }
     }
