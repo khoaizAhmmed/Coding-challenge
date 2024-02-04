@@ -33,6 +33,7 @@ export default function Table({ members, sectors, handleEdit, handleDelete }: Ta
               <tr>
                 <th className="w-20 p-3 text-sm font-semibold tracking-wide text-left">ID</th>
                 <th className="p-3 text-sm font-semibold tracking-wide text-left">Name</th>
+                <th className="p-3 text-sm font-semibold tracking-wide text-left">Sectors</th>
                 <th className="w-24 p-3 text-sm font-semibold tracking-wide text-left">Action</th>
               </tr>
             </thead>
@@ -40,7 +41,8 @@ export default function Table({ members, sectors, handleEdit, handleDelete }: Ta
               {membersData.length &&
                 membersData.map((member) => (
                   <tr key={member.id} className="bg-white">
-                    <td className="p-3 text-sm text-gray-700 whitespace-nowrap">{member.id}</td>
+                    <td className="p-3 text-sm text-gray-600 whitespace-nowrap">{member.id}</td>
+                    <td className="p-3 text-sm text-gray-700 font-semibold whitespace-nowrap">{member.name}</td>
                     <td className="p-3 text-sm text-gray-700 whitespace-nowrap flex flex-wrap items-center gap-x-2">
                       {member.sectorsName.map((sectorName: string) => (
                         <p
