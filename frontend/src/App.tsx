@@ -52,8 +52,6 @@ function App() {
     data()
   }, [])
 
-  console.log(sectors);
-
   return (
     <>
       <Form formData={formData} sectors={sectors} setFormData={setFormData} setMembers={setMembers} />
