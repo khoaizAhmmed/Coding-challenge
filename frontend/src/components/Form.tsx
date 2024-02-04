@@ -1,7 +1,7 @@
-import { ChangeEvent, SyntheticEvent, useState } from 'react'
+import { ChangeEvent, SyntheticEvent, useMemo, useState } from 'react'
 import { ErrorMessageType, FormDataType, SectorResponseType } from '../globalType'
 import { defaultFormValue } from '../globalValue'
-import { saveMember, updateMember } from '../helper'
+import { groupByParentIdAndAddDepth, saveMember, updateMember } from '../helper'
 
 type FormType = {
   formData: FormDataType
@@ -13,40 +13,19 @@ type FormType = {
 export default function Form({ formData, sectors, setFormData, setMembers }: FormType) {
   const [errorMsg, setErrorMsg] = useState<Partial<ErrorMessageType>>({})
 
-  // const tree = {}
-  // const groupSectors = sectors.forEach((sector, i) => {
-  //   const sectorCategory = new Map()
-
-  //   if (sector.parentId === null) {
-  //     sectorCategory.set(sector.id, sector.name)
-  //     // console
-  //     if (!tree[sector.name]) {
-  //       tree[sector.name] = []
-  //     }
-  //   } else {
-  //     const sectorGrpName = sectorCategory.get(sector.parentId)
-  //     if (tree[sectorGrpName]) {
-  //       tree[sectorGrpName].push(sector)
-  //     }
-  //   }
-  // })
-
-  // console.log({ tree, sectors })
-
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
     let response: FormDataType
 
-    console.log(formData)
-
     const error = formValidation(formData)
-    console.log({ error })
     if (Object.keys(error).length) {
       setErrorMsg(error)
       return
     }
+
     setErrorMsg({})
-    if (formData.id) {
+
+    if (formData.id && formData.id !== 0) {
       response = await updateMember(formData)
       if (response.id) {
         setFormData(defaultFormValue)
@@ -97,10 +76,11 @@ export default function Form({ formData, sectors, setFormData, setMembers }: For
   const handleSectors = (e: ChangeEvent<HTMLSelectElement>) => {
     const options = [...e.target.selectedOptions]
     const values: string[] = options.map((option) => option.value)
-    console.log(values)
 
     setFormData((prev) => ({ ...prev, sectorIds: values.toString() }))
   }
+
+  const sectorOptions = useMemo(() => groupByParentIdAndAddDepth(sectors), [sectors])
 
   return (
     <section className="max-w-4xl p-6 m-10 mx-auto bg-white rounded-md shadow-md dark:bg-gray-800">
@@ -131,33 +111,20 @@ export default function Form({ formData, sectors, setFormData, setMembers }: For
               Sectors
             </label>
             <select
-              // multiple
-              // size={5}
+              multiple
+              size={5}
               value={formData.sectorIds.split(',')}
               onChange={handleSectors}
               className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring"
               name="sectors"
               id="sectors"
             >
-              {sectors.length &&
-                sectors.map((sector: SectorResponseType) => (
-                  <option key={sector.id} value={sector.id}>
+              {sectorOptions.length &&
+                sectorOptions.map((sector: FormDataType) => (
+                  <option key={sector.id} value={sector.id} style={{ marginLeft: sector.depth && sector.depth * 20 }}>
                     {sector.name}
                   </option>
                 ))}
-              {/* {sectors.length &&
-                sectors.map((sector: SectorResponseType) => (
-                  <option key={sector.id} value={sector.id}>
-                    {Array(sector.parentId * 3)
-                      .fill(null)
-                      .map((space) => (
-                        <>&nbsp;</>
-                      ))}
-                    {sector.name}
-                  </option>
-                ))} */}
-              {/* {categoryOptions} */}
-              {/* {categoryOptions.split(',').map((categoryOption) => )} */}
             </select>
             {errorMsg.sectorIds && <p className="text-red-500 py-2">{errorMsg.sectorIds}</p>}
           </div>
@@ -175,10 +142,14 @@ export default function Form({ formData, sectors, setFormData, setMembers }: For
         <br />
         {errorMsg.isAgree && <p className="text-red-500 py-2">{errorMsg.isAgree}</p>}
 
-        <div className="flex justify-end mt-6">
+        <div className="mt-6">
           <button
             type="submit"
-            className="px-8 py-2.5 leading-5 text-white transition-colors duration-300 transform bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:bg-gray-600"
+            className={`px-8 py-2.5 leading-5 text-white transition-colors duration-300 transform ${
+              !formData.id
+                ? 'bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:bg-gray-600'
+                : 'bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none focus:bg-yellow-600'
+            }`}
           >
             {formData.id ? 'Update' : 'save'}
           </button>
